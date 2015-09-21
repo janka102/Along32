@@ -17,10 +17,12 @@
 ; You should have received a copy of the GNU Lesser General Public License
 ; along with Along32 library.  If not, see <http://www.gnu.org/licenses/>.
 ;
-; Last update: 2009/08/20
+; Last update: 2015/10/20
 
-%ifndef ALONG32
-%define ALONG32
+.NOLIST
+.386
+.model flat, stdcall
+.stack 4096
 
 ; ------------------------------------------
 ; function descriptions 
@@ -59,37 +61,37 @@
 ; ------------------------------------------
 ; function prototypes
 ; ------------------------------------------
-extern Clrscr
-extern Crlf
-extern Delay
-extern DumpMem
-extern DumpRegs
-extern Gotoxy
-extern IsDigit
-extern ParseDecimal32
-extern ParseInteger32
-extern Random32
-extern Randomize
-extern RandomRange
-extern ReadChar
-extern ReadDec
-extern ReadHex
-extern ReadInt
-extern ReadKey
-extern ReadString
-extern Str_compare
-extern Str_copy
-extern Str_length
-extern Str_trim
-extern Str_ucase
-extern WriteBin
-extern WriteBinB
-extern WriteChar
-extern WriteDec
-extern WriteHex
-extern WriteHexB
-extern WriteInt
-extern WriteString
+Clrscr PROTO
+Crlf PROTO
+Delay PROTO
+DumpMem PROTO
+DumpRegs PROTO
+Gotoxy PROTO
+IsDigit PROTO
+ParseDecimal32 PROTO
+ParseInteger32 PROTO
+Random32 PROTO
+Randomize PROTO
+RandomRange PROTO
+ReadChar PROTO
+ReadDec PROTO
+ReadHex PROTO
+ReadInt PROTO
+ReadKey PROTO
+ReadString PROTO
+Str_compare PROTO
+Str_copy PROTO
+Str_length PROTO
+Str_trim PROTO
+Str_ucase PROTO
+WriteBin PROTO
+WriteBinB PROTO
+WriteChar PROTO
+WriteDec PROTO
+WriteHex PROTO
+WriteHexB PROTO
+WriteInt PROTO
+WriteString PROTO
 ; ------------------------------------------
 
-%endif
+.LIST
