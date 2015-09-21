@@ -25,30 +25,33 @@
 ASM = nasm
 
 # Format of object file is linux
-LINUX_FORMAT = elf
+OBJECT_FORMAT = macho
 
 # Flags used in assemblying phase
-ASMFLAGS =
+ASMFLAGS = --prefix _
 
 # Where to install. Default is /usr/lib
 INSTDIR = /usr/lib
 
-# Linker is ld
-LINKER = ld
+# Let gcc set up the linker
+CC = gcc
 
 # Share libbrary option for linker
-SHLIB = -shared
+CFLAGS = -m32 -read_only_relocs suppress
 
-all: libAlong32.so
+all: libAlong32.a
+
+libAlong32.a: Along32.o
+	ar rcs libAlong32.a Along32.o
 
 libAlong32.so: Along32.o
-	$(LINKER) $(SHLIB) Along32.o -o libAlong32.so -lc
+	$(CC) $(CFLAGS) Along32.o -o libAlong32.so -lc
 
 Along32.o: Along32.asm 
-	$(ASM) -f $(LINUX_FORMAT) $(ASMFLAGS) -o Along32.o Along32.asm
+	$(ASM) -f $(OBJECT_FORMAT) $(ASMFLAGS) -o Along32.o Along32.asm
 
 clean:
-	-rm Along32.o libAlong32.so
+	-rm -f Along32.o libAlong32.so libAlong32.a
 
 install: libAlong32.so
 	@if [ -d $(INSTDIR) ]; \

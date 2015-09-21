@@ -145,7 +145,7 @@ segment .text
 ; make the functions global as the shared library functions
 ; --------------------------------------------------------
 
-global Clrscr:function, Crlf:function, Delay:function, DumpMem:function, DumpRegs:function, Gotoxy:function, IsDigit:function, ParseDecimal32:function, ParseInteger32:function, Random32:function, Randomize:function, RandomRange:function, ReadChar:function, ReadDec:function, ReadHex:function, ReadInt:function, ReadKey:function, ReadString:function,  Str_compare:function, Str_copy:function, Str_length:function, Str_trim:function, Str_ucase:function, WriteBin:function, WriteBinB:function, WriteChar:function, WriteDec:function, WriteHex:function, WriteHexB:function, WriteInt:function, WriteString:function
+global Clrscr, Crlf, Delay, DumpMem, DumpRegs, Gotoxy, IsDigit, ParseDecimal32, ParseInteger32, Random32, Randomize, RandomRange, ReadChar, ReadDec, ReadHex, ReadInt, ReadKey, ReadString,  Str_compare, Str_copy, Str_length, Str_trim, Str_ucase, WriteBin, WriteBinB, WriteChar, WriteDec, WriteHex, WriteHexB, WriteInt, WriteString
 ;----------------------------------------------------------
 
 ;-----------------------------------------------------
