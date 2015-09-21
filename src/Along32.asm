@@ -1459,11 +1459,13 @@ WriteString:
 
 	INVOKE Str_length,edx   	; return length of string in EAX
 
-	mov ecx, edx
-	mov edx, eax
-	mov ebx, 1
-	mov eax, 4
+	push dword eax    ; string length
+	push dword edx    ; string
+	push dword STDOUT
+	mov eax,4         ; syscall number for write
+	sub esp,4
 	int 80h
+	add esp,16
 
 	popad
 	ret
