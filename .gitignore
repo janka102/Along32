@@ -1,0 +1,5 @@
+src/Along32.o
+src/libAlong32.so
+src/libAlong32.a
+
+.DS_Store
