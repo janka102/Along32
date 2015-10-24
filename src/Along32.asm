@@ -874,15 +874,20 @@ ReadKeys:
 	jmp .L3
 .NoKey:
 	call BufferFlush; if no Key, read from the keyboard
+	push ecx ; save size
+	push edx ; save destination
 	mov eax, 3
 	mov ebx, STDIN
+	mov edx, buffer
+	mov ecx, bufferMax
 	push ecx
 	push edx
-	mov ecx, buffer
-	mov edx, bufferMax
+	push ebx
+	push eax
 	int 80h
-	pop edx
-	pop ecx
+	add esp, 16
+	pop edx ; restore destination
+	pop ecx ; restore size
 	mov dword [bytesRead], eax
 	cmp eax, 1
 	ja .next
