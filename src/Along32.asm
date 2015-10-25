@@ -889,12 +889,6 @@ ReadKeys:
 	pop edx ; restore destination
 	pop ecx ; restore size
 	mov dword [bytesRead], eax
-	cmp eax, 1
-	ja .next
-	mov al, byte [buffer]
-	cmp al, NL
-	je .NoKey
-.next:
 	jmp .Begin
 .L3:
 	popad
