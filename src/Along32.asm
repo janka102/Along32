@@ -145,7 +145,8 @@ segment .text
 ; make the functions global as the shared library functions
 ; --------------------------------------------------------
 
-global Clrscr, Crlf, Delay, DumpMem, DumpRegs, Gotoxy, IsDigit, ParseDecimal32, ParseInteger32, Random32, Randomize, RandomRange, ReadChar, ReadDec, ReadHex, ReadInt, ReadKey, ReadString,  Str_compare, Str_copy, Str_length, Str_trim, Str_ucase, WriteBin, WriteBinB, WriteChar, WriteDec, WriteHex, WriteHexB, WriteInt, WriteString
+global Clrscr, Crlf, Delay, DumpMem, DumpRegs, Gotoxy, IsDigit, ParseDecimal32, ParseInteger32, Random32, Randomize, RandomRange, ReadChar, ReadDec, ReadHex, ReadInt, ReadKey, ReadString
+global SetTextColor, Str_compare, Str_copy, Str_length, Str_trim, Str_ucase, WriteBin, WriteBinB, WriteChar, WriteDec, WriteHex, WriteHexB, WriteInt, WriteString
 ;----------------------------------------------------------
 
 ;-----------------------------------------------------
@@ -1130,6 +1131,96 @@ ReadString:
 	leave
 	ret
 ;--------------- End of ReadString --------------------
+
+;--------------------------------------------------------
+SetTextColor:
+;
+; Sets the foreground and background colors of all
+; subsequent text output to the console.
+; Receives: AL = color attribute
+;           First 4 bytes are background and last are foreground
+; Returns:  nothing
+;--------------------------------------------------------
+segment .data
+styleStr db ESC, "[0m"		; no null, so write both strings at once
+colorStr db ESC, "[30;40m", 0
+strEnd   equ $
+colorArr db gray,  lightRed, lightGreen, yellow, lightBlue, lightMagenta, lightCyan, white
+	 db black, red,      green,      brown,  blue,      magenta,      cyan,      lightGray
+colorEnd equ $
+black        equ 0000b
+blue         equ 0001b
+green        equ 0010b
+cyan         equ 0011b
+red          equ 0100b
+magenta      equ 0101b
+brown        equ 0110b
+lightGray    equ 0111b
+gray         equ 1000b
+lightBlue    equ 1001b
+lightGreen   equ 1010b
+lightCyan    equ 1011b
+lightRed     equ 1100b
+lightMagenta equ 1101b
+yellow       equ 1110b
+white        equ 1111b
+
+segment .text
+	pushad
+
+	mov  esi, colorStr
+
+	xor  ebx, ebx
+	mov  bl, al
+	and  bl, 0Fh		; bl = foreground color
+	mov  bh, 1		; flag: foreground (1) or background (0)
+
+.SetupLoop:
+	mov  edx, colorEnd
+	mov  ecx, colorEnd - strEnd; length of array
+
+.CheckColor:
+	dec  edx
+	cmp  [edx], bl		; if color matches
+	je   .Update		; yes: update the string
+	loop .CheckColor	; no: keep checking
+
+.Update:
+	add  esi, 3		; move to '0's in the string
+	mov  bl, al		; save color in al for division
+	mov  ecx, colorEnd	; setup div
+	sub  ecx, edx
+	mov  al, colorEnd - strEnd; number of colors
+	sub  al, cl
+	mov  cl, 8
+	div  cl			; ah = remainder (0-7), al = 0 if light
+	cmp  al, 0		; if light color
+	jne  .NormalColor	; yes: make bright/bold
+	mov  byte [strEnd - 11], '2'; styleStr
+
+.NormalColor
+	mov  al, bl		; restore al after division
+	add  [esi], ah		; update 30 and 40 in the string
+
+	cmp  bh, 0		; if checking background
+	je   .Write		; yes: write the string
+				; no: check background
+	dec  bh			; dh = 0, check background
+	and  bl, 0F0h		; bl = background color
+	shr  bl, 4
+	jmp  .SetupLoop
+
+.Write:
+	mov  edx, styleStr
+	call WriteString
+
+	mov  byte [esi], '0'	; restore "40"
+	mov  byte [esi - 3], '0'; restore "30"
+	mov  byte [strEnd - 11], '0'; restore "0"
+
+	popad
+	ret
+;--------------- End of SetTextColor --------------------
 
 ;------------------------------------------------------
 WriteBin:
