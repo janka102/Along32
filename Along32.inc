@@ -96,7 +96,7 @@ WriteInt PROTO
 WriteString PROTO
 
 ;-------------------------------------------
-; Standard 4-bit color definitions (ms-dos)
+; Standard (ms-dos) 4-bit color definitions
 ;-------------------------------------------
 black        = 0000b
 blue         = 0001b

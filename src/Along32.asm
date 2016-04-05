@@ -26,7 +26,9 @@
 ; 2010/04/15: fix the bug in ReadInt, and a bug in ReadHex. ReadHex will
 ;             generate a segmentation fault.
 ;
-; This library was created by Curtis Wong, for use with the book, "Assembly Language for Intel-based Computers", 4th Edition & 5th Edition, modified from Irvine32.asm.
+; This library was created by Curtis Wong, for use with the book,
+; "Assembly Language for Intel-based Computers", 4th Edition & 5th Edition,
+; modified from Irvine32.asm.
 ;
 ; Function Prototypes
 ; -------------- global functions ------------
@@ -145,8 +147,11 @@ segment .text
 ; make the functions global as the shared library functions
 ; --------------------------------------------------------
 
-global Clrscr, Crlf, Delay, DumpMem, DumpRegs, Gotoxy, IsDigit, ParseDecimal32, ParseInteger32, Random32, Randomize, RandomRange, ReadChar, ReadDec, ReadHex, ReadInt, ReadKey, ReadString
-global SetTextColor, Str_compare, Str_copy, Str_length, Str_trim, Str_ucase, WriteBin, WriteBinB, WriteChar, WriteDec, WriteHex, WriteHexB, WriteInt, WriteString
+global Clrscr, Crlf, Delay, DumpMem, DumpRegs, Gotoxy, IsDigit, ParseDecimal32
+global ParseInteger32, Random32, Randomize, RandomRange, ReadChar, ReadDec
+global ReadHex, ReadInt, ReadKey, ReadString, SetTextColor, Str_compare
+global Str_copy, Str_length, Str_trim, Str_ucase, WriteBin, WriteBinB, WriteChar
+global WriteDec, WriteHex, WriteHexB, WriteInt, WriteString
 ;----------------------------------------------------------
 
 ;-----------------------------------------------------
