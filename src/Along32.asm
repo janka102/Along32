@@ -119,6 +119,7 @@ segment .text
 
 ; import libc functions
 extern printf
+extern fflush
 
 %assign MAX_DIGITS 80
 %define ESC 27			; escape code
@@ -1147,11 +1148,10 @@ SetTextColor:
 ; Returns:  nothing
 ;--------------------------------------------------------
 segment .data
-styleStr db ESC, "[0m"		; no null, so write both strings at once
-colorStr db ESC, "[30;40m", 0
-strEnd   equ $
-colorArr db gray,  lightRed, lightGreen, yellow, lightBlue, lightMagenta, lightCyan, white
-	 db black, red,      green,      brown,  blue,      magenta,      cyan,      lightGray
+finalColor db 28h, 1Eh		; 40, 30
+colorStart equ $
+colorArr db white,     lightCyan, lightMagenta, lightBlue, yellow, lightGreen, lightRed, gray
+	 db lightGray, cyan,      magenta,      blue,      brown,  green,      red,      black
 colorEnd equ $
 black        equ 0000b
 blue         equ 0001b
@@ -1171,61 +1171,88 @@ yellow       equ 1110b
 white        equ 1111b
 
 segment .text
+	push edx
 	pushad
-
-	mov  esi, colorStr
 
 	xor  ebx, ebx
 	mov  bl, al
 	and  bl, 0Fh		; bl = foreground color
 	mov  bh, 1		; flag: foreground (1) or background (0)
 
-.SetupLoop:
+	.SetupLoop:
 	mov  edx, colorEnd
-	mov  ecx, colorEnd - strEnd; length of array
+	mov  ecx, colorEnd - colorStart; length of array
 
-.CheckColor:
+	.CheckColor:
 	dec  edx
 	cmp  [edx], bl		; if color matches
 	je   .Update		; yes: update the string
 	loop .CheckColor	; no: keep checking
 
-.Update:
-	add  esi, 3		; move to '0's in the string
+	.Update:
 	mov  bl, al		; save color in al for division
-	mov  ecx, colorEnd	; setup div
-	sub  ecx, edx
-	mov  al, colorEnd - strEnd; number of colors
-	sub  al, cl
+	mov  eax, colorEnd	; setup div
+	sub  eax, edx
+	sub  eax, 1		; 0 indexed, not 1
 	mov  cl, 8
-	div  cl			; ah = remainder (0-7), al = 0 if light
-	cmp  al, 0		; if light color
-	jne  .NormalColor	; yes: make bright/bold
-	mov  byte [strEnd - 11], '2'; styleStr
+	div  cl			; ah = remainder (0-7), al = 0 if normal
+	cmp  al, 0		; if normal color
+	je  .NormalColor	; yes: do nothing
+	add  ah, 3Ch		; no: make bright/bold, add 60
 
-.NormalColor
+	.NormalColor:
 	mov  al, bl		; restore al after division
-	add  [esi], ah		; update 30 and 40 in the string
-
+	mov  esi, finalColor
 	cmp  bh, 0		; if checking background
 	je   .Write		; yes: write the string
-				; no: check background
-	dec  bh			; dh = 0, check background
+				; no: upate foreground and check background
+	inc  esi
+	add  [esi], ah
+
+	dec  bh			; dh = 0, checking background
 	and  bl, 0F0h		; bl = background color
 	shr  bl, 4
 	jmp  .SetupLoop
 
-.Write:
-	mov  edx, styleStr
-	call WriteString
+	.Write:
+	add  [esi], ah
+	mov  dx, [finalColor]
+	call WriteTextColor
+	mov  word [esi], 1E28h
 
-	mov  byte [esi], '0'	; restore "40"
-	mov  byte [esi - 3], '0'; restore "30"
-	mov  byte [strEnd - 11], '0'; restore "0"
+	push dword 0
+	call fflush		; flush buffer from printf without a newline
+	add  esp, 4
 
 	popad
+	pop  edx
 	ret
 ;--------------- End of SetTextColor --------------------
+
+;--------------------------------------------------------
+WriteTextColor:
+;
+; Write the color codes to change the text color.
+; Receives: dx = color codes
+;           dh is background and dl is foreground
+; Returns:  nothing
+;--------------------------------------------------------
+segment .data
+colorStr db ESC, "[%d;%dm", 0
+
+segment .text
+	push  eax
+
+	movzx eax, dl
+	push  eax
+	movzx eax, dh
+	push  eax
+	push  dword colorStr
+	call  printf		; call the libc function printf
+	add   esp, 12
+
+	pop   eax
+	ret
 
 ;------------------------------------------------------
 WriteBin:
